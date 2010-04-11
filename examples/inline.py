@@ -1,4 +1,4 @@
-from Pyvascript import JavaScript
+from PyvaScript import JavaScript
 from AjaxHelper import *
 
 @JavaScript
