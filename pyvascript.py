@@ -72,11 +72,9 @@ class JavaScript(object):
                 pc = self.execute(pc, block=outer, stack=stack, scope=scope)
         except Exception:
             print
-            import sys, traceback
-            traceback.print_exc(file=sys.stdout)
             dis.dis(func)
             self.js = ''
-            return
+            raise
 
         if func.func_defaults:
             defaults = ''
