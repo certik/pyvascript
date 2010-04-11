@@ -1,4 +1,4 @@
-import compiler, dis, opcode, struct
+import dis, opcode, struct
 
 class JsDict(dict):
     def __repr__(self):
@@ -123,7 +123,7 @@ function%s(%s) {
             return -1
         self.hit.append(pc)
 
-        opcd = ord(self.co_code[pc])
+        opcd = _ord(self.co_code[pc])
         name = opcode.opname[opcd]
         pc += 1
 
@@ -483,6 +483,13 @@ function%s(%s) {
 
     def __str__(self):
         return self.js
+
+def _ord(x):
+    if isinstance(x, str):
+        return ord(x)
+    else:
+        return x
+
 
 def pyvascript(context):
     context._push_buffer()
