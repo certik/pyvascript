@@ -1,4 +1,4 @@
-from PyvaScript import JavaScript
+from pyvascript import JavaScript
 
 __js_deps__ = (
         'http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js',
