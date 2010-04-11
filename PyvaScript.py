@@ -298,6 +298,10 @@ function%s(%s) {
         stack.append(JsDict())
 
     @opcode
+    def STORE_MAP(self, _block, stack, _scope):
+        pass
+
+    @opcode
     def BUILD_LIST(self, _block, stack, _scope, count):
         stack.append(JsList([stack.pop() for i in xrange(count)][::-1]))
 
