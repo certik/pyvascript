@@ -24,7 +24,7 @@ class JavaScript(object):
     @classmethod
     def __new__(cls, *args, **kwargs):
         if cls == JavaScript:
-            return object.__new__(cls, *args, **kwargs)
+            return object.__new__(cls)
 
         superdir = dir(JavaScript)
         subdir = [elem for elem in dir(cls) if elem not in superdir]
