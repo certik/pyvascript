@@ -127,27 +127,27 @@ function%s(%s) {
         name = opcode.opname[opcd]
         pc += 1
 
+        # build the arguments:
         args = [self, block, stack, scope]
 
         if opcd >= opcode.HAVE_ARGUMENT:
             arg, = struct.unpack('h', self.co_code[pc:pc+2])
             pc += 2
 
-        if opcd in opcode.hasconst:
-            args.append(self.code.co_consts[arg])
-        elif opcd in opcode.haslocal:
-            args.append(self.code.co_varnames[arg])
-        elif opcd in opcode.hasname:
-            args.append(self.code.co_names[arg])
-        elif opcd in opcode.hasjrel:
+        if opcd in opcode.hasjrel:
             args.append(pc)
-            args.append(arg)
         elif opcd in opcode.hasjabs:
+            # this is needed, because we call JUMP_IF_FALSE from there:
             if name == "POP_JUMP_IF_FALSE":
                 args.append(pc)
-            if opcd >= opcode.HAVE_ARGUMENT:
-                args.append(arg)
-        elif opcd >= opcode.HAVE_ARGUMENT:
+
+        if opcd >= opcode.HAVE_ARGUMENT:
+            if opcd in opcode.hasconst:
+                arg = self.code.co_consts[arg]
+            elif opcd in opcode.haslocal:
+                arg = self.code.co_varnames[arg]
+            elif opcd in opcode.hasname:
+                arg = self.code.co_names[arg]
             args.append(arg)
 
         if name.startswith('INPLACE_'): # Why is this separate?  Just an optimization in the Py core?
