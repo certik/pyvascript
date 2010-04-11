@@ -142,12 +142,18 @@ function%s(%s) {
         elif opcd in opcode.hasjrel:
             args.append(pc)
             args.append(arg)
+        elif opcd in opcode.hasjabs:
+            if name == "POP_JUMP_IF_FALSE":
+                args.append(pc)
+            if opcd >= opcode.HAVE_ARGUMENT:
+                args.append(arg)
         elif opcd >= opcode.HAVE_ARGUMENT:
             args.append(arg)
 
         if name.startswith('INPLACE_'): # Why is this separate?  Just an optimization in the Py core?
             name = 'BINARY_' + name[len('INPLACE_'):]
         if name in self.opcdmap:
+            #print(args)
             npc = self.opcdmap[name](*args)
             if npc != None:
                 pc = npc
@@ -412,6 +418,12 @@ function%s(%s) {
     @opcode
     def BREAK_LOOP(self, block, _stack, _scope):
         block.append('break;')
+
+    @opcode
+    def POP_JUMP_IF_FALSE(self, block, stack, scope, pc, target):
+        r = self.JUMP_IF_FALSE(block, stack, scope, pc, target-pc)
+        stack.pop()
+        return r
 
     @opcode
     def JUMP_IF_FALSE(self, block, stack, scope, pc, delta):
