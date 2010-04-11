@@ -297,7 +297,11 @@ function%s(%s) {
 
     @opcode
     def STORE_MAP(self, _block, stack, _scope):
-        pass
+        key = stack.pop()
+        value = stack.pop()
+        d = stack.pop()
+        d[key] = value
+        stack.append(d)
 
     @opcode
     def BUILD_LIST(self, _block, stack, _scope, count):
