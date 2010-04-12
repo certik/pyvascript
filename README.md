@@ -4,10 +4,16 @@ Introduction
 Pyvascript is an alternative syntax for Javascript.  Code can be written using 
 standard Python syntax against the Javascript standard libraries.
 
+It is known to work with Python 2.4, 2.5, 2.6, 3.0, 3.1.
+
 Installation
 ============
 
-Simply clone the repository.
+Simply clone the repository. If you use Python 3, run the 2to3 tool first:
+
+$ 2to3 -wn .
+
+This fixes the files inplace.
 
 Usage
 =====
