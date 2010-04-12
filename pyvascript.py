@@ -80,7 +80,7 @@ class JavaScript(object):
             defaults = ''
 
             off = self.code.co_argcount - len(func.func_defaults)
-            for i in xrange(len(func.func_defaults)):
+            for i in range(len(func.func_defaults)):
                 var = self.code.co_varnames[off+i]
                 val = func.func_defaults[i]
                 if val == None:
@@ -311,7 +311,7 @@ function%s(%s) {
 
     @opcode
     def BUILD_LIST(self, _block, stack, _scope, count):
-        stack.append(JsList([stack.pop() for i in xrange(count)][::-1]))
+        stack.append(JsList([stack.pop() for i in range(count)][::-1]))
 
     @opcode
     def CALL_FUNCTION(self, _block, stack, _scope, count):
