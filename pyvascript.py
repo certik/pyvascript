@@ -335,6 +335,12 @@ function%s(%s) {
         stack.append('%s %s %s' % (b, opcode.cmp_op[opname], a))
 
     @opcode
+    def UNPACK_SEQUENCE(self, _block, stack, _scope, count):
+        s = stack.pop()
+        for i in reversed(range(count)):
+            stack.append("%s[%d]" % (s, i))
+
+    @opcode
     def GET_ITER(self, _block, stack, _scope):
         pass
     @opcode
