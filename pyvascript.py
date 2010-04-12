@@ -187,6 +187,20 @@ function%s(%s) {
 
         if use:
             block.append('%s;' % top)
+
+    @opcode
+    def POP_BLOCK(self, block, stack, _scope):
+        return
+        top = stack.pop()
+
+        if isinstance(top, tuple) and len(top) == 2:
+            use, top = top
+        else:
+            use = True
+
+        if use:
+            block.append('%s;' % top)
+
     @opcode
     def ROT_TWO(self, _block, stack, _scope):
         a, b = stack.pop(), stack.pop()
@@ -308,6 +322,10 @@ function%s(%s) {
         d = stack.pop()
         d[key] = value
         stack.append(d)
+
+    @opcode
+    def BUILD_TUPLE(self, _block, stack, _scope, count):
+        stack.append(JsList([stack.pop() for i in range(count)][::-1]))
 
     @opcode
     def BUILD_LIST(self, _block, stack, _scope, count):
