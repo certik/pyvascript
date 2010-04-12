@@ -67,7 +67,8 @@ class GoL(JavaScript):
 GoL = GoL()
 
 def main():
-    print str(StartGoL)+str(GoL)
+    print '<script language="JavaScript">\n%s</script>' % \
+            (str(StartGoL)+str(GoL))
 
 if __name__ == "__main__":
     main()

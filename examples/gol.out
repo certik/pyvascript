@@ -1,3 +1,4 @@
+<script language="JavaScript">
 
 function StartGoL() {
 	window.gol = new GoL();
@@ -76,4 +77,4 @@ function() {
 	this.draw();
 	return;
 }
-
+</script>
