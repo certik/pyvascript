@@ -457,6 +457,8 @@ function%s(%s) {
     @opcode
     def JUMP_IF_FALSE(self, block, stack, scope, pc, delta):
         if len(stack) >= 2 and stack[-2] == 'while':
+            # this doesn't always work, sometimes the "else" part should be
+            # executed
             block.append(('while', stack[-1]))
             stack.append((False, stack.pop()))
         else:
