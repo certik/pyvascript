@@ -341,6 +341,11 @@ function%s(%s) {
             stack.append("%s[%d]" % (s, i))
 
     @opcode
+    def RAISE_VARARGS(self, block, stack, _scope, argc):
+        assert argc == 1
+        block.append(str(stack.pop()))
+
+    @opcode
     def GET_ITER(self, _block, stack, _scope):
         pass
     @opcode
