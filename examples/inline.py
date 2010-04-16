@@ -1,14 +1,3 @@
-"""
-Python to JavaScript translator.
-
-It is based on opcodes, that are well documented here:
-
-http://docs.python.org/library/dis.html
-
-It is dependent on the Python version, but the differences are minor (just
-couple more opcodes have to be implemented for later versions of Python, and
-some obsolete opcodes are not used anymore).
-"""
 from pyvascript import JavaScript
 from AjaxHelper import AjaxHelper
 
