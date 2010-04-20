@@ -10,14 +10,21 @@ couple more opcodes have to be implemented for later versions of Python, and
 some obsolete opcodes are not used anymore).
 """
 
-import dis, opcode, struct
+import dis, opcode as python_opcode, struct
+
+def opcode(func):
+    """
+    Registers the method in the Translator class.
+    """
+    Translator.opcdmap[func.__name__] = func
+    return func
 
 class Translator(object):
     varcount = 0
+    # this opcdmap is filled in by the opcode decorator:
+    opcdmap = {}
 
     def __init__(self, func, inClass=False, fname=None, anonymous=False):
-        from pyvascript import JavaScript
-        self.opcdmap = JavaScript.opcode.func_defaults[0]
         self.code = func.func_code
         self.co_code = self.code.co_code
 
@@ -83,29 +90,29 @@ function%s(%s) {
         self.hit.append(pc)
 
         opcd = _ord(self.co_code[pc])
-        name = opcode.opname[opcd]
+        name = python_opcode.opname[opcd]
         pc += 1
 
         # build the arguments:
         args = [self, block, stack, scope]
 
-        if opcd >= opcode.HAVE_ARGUMENT:
+        if opcd >= python_opcode.HAVE_ARGUMENT:
             arg, = struct.unpack('h', self.co_code[pc:pc+2])
             pc += 2
 
-        if opcd in opcode.hasjrel:
+        if opcd in python_opcode.hasjrel:
             args.append(pc)
-        elif opcd in opcode.hasjabs:
+        elif opcd in python_opcode.hasjabs:
             # this is needed, because we call JUMP_IF_FALSE from there:
             if name == "POP_JUMP_IF_FALSE":
                 args.append(pc)
 
-        if opcd >= opcode.HAVE_ARGUMENT:
-            if opcd in opcode.hasconst:
+        if opcd >= python_opcode.HAVE_ARGUMENT:
+            if opcd in python_opcode.hasconst:
                 arg = self.code.co_consts[arg]
-            elif opcd in opcode.haslocal:
+            elif opcd in python_opcode.haslocal:
                 arg = self.code.co_varnames[arg]
-            elif opcd in opcode.hasname:
+            elif opcd in python_opcode.hasname:
                 arg = self.code.co_names[arg]
             args.append(arg)
 

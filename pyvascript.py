@@ -1,5 +1,5 @@
 import dis, struct
-from translator import Translator
+from translator import Translator, opcode
 
 class JsDict(dict):
     def __repr__(self):
@@ -61,10 +61,6 @@ class JavaScript(Translator):
             )
 
         return code
-
-    def opcode(func, opcdmap={}):
-        opcdmap[func.__name__] = func
-        return func
 
     @opcode
     def DUP_TOP(self, _block, stack, _scope):
