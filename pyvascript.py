@@ -1,16 +1,5 @@
-"""
-Python to JavaScript translator.
-
-It is based on opcodes, that are well documented here:
-
-http://docs.python.org/library/dis.html
-
-It is dependent on the Python version, but the differences are minor (just
-couple more opcodes have to be implemented for later versions of Python, and
-some obsolete opcodes are not used anymore).
-"""
-
-import dis, opcode, struct
+import dis, struct
+from translator import Translator
 
 class JsDict(dict):
     def __repr__(self):
@@ -30,8 +19,13 @@ class JsFunc(object):
     def __repr__(self):
         return str(self)
 
-class JavaScript(object):
-    varcount = 0
+class JavaScript(Translator):
+    """
+    Python to JavaScript translator.
+
+    Based on the Translator() class, it just implements the opcodes -> js
+    translation.
+    """
 
     @classmethod
     def __new__(cls, *args, **kwargs):
@@ -68,115 +62,6 @@ class JavaScript(object):
 
         return code
 
-    def __init__(self, func, inClass=False, fname=None, anonymous=False):
-        #dis.dis(func)
-        self.opcdmap = JavaScript.opcode.func_defaults[0]
-        self.code = func.func_code
-        self.co_code = self.code.co_code
-
-        self.hit = []
-        pc = 0
-        outer = []
-        stack = []
-        scope = [name for name in self.code.co_varnames[:self.code.co_argcount]]
-        try:
-            while pc != -1 and pc < len(self.co_code):
-                pc = self.execute(pc, block=outer, stack=stack, scope=scope)
-        except Exception:
-            print
-            dis.dis(func)
-            self.js = ''
-            raise
-
-        if func.func_defaults:
-            defaults = ''
-
-            off = self.code.co_argcount - len(func.func_defaults)
-            for i in range(len(func.func_defaults)):
-                var = self.code.co_varnames[off+i]
-                val = func.func_defaults[i]
-                if val == None:
-                    val = 'null'
-                else:
-                    if val is True:
-                        val = 'true'
-                    elif val is False:
-                        val = 'false'
-                    elif val is None:
-                        val = 'None'
-                    else:
-                        val = repr(val)
-                defaults += '\t%s = (typeof(%s) != \'undefined\' && %s != null) ? %s : %s;\n' % (
-                        var, var, var, var, val
-                    )
-        else:
-            defaults = ''
-
-        if fname == None:
-            fname = func.__name__
-
-        if fname == '__top__':
-            self.js = '\n'.join(line for line in outer if line != 'return;')
-        else:
-            self.js = \
-'''
-function%s(%s) {
-%s%s
-}
-''' % (
-                (not anonymous) and ' %s' % fname or '',
-                ', '.join(self.code.co_varnames[inClass and 1 or 0:self.code.co_argcount]),
-                defaults,
-                '\n'.join('\t%s' % line for line in outer)
-            )
-
-    def execute(self, pc, block, stack, scope):
-        if pc in self.hit:
-            return -1
-        self.hit.append(pc)
-
-        opcd = _ord(self.co_code[pc])
-        name = opcode.opname[opcd]
-        pc += 1
-
-        # build the arguments:
-        args = [self, block, stack, scope]
-
-        if opcd >= opcode.HAVE_ARGUMENT:
-            arg, = struct.unpack('h', self.co_code[pc:pc+2])
-            pc += 2
-
-        if opcd in opcode.hasjrel:
-            args.append(pc)
-        elif opcd in opcode.hasjabs:
-            # this is needed, because we call JUMP_IF_FALSE from there:
-            if name == "POP_JUMP_IF_FALSE":
-                args.append(pc)
-
-        if opcd >= opcode.HAVE_ARGUMENT:
-            if opcd in opcode.hasconst:
-                arg = self.code.co_consts[arg]
-            elif opcd in opcode.haslocal:
-                arg = self.code.co_varnames[arg]
-            elif opcd in opcode.hasname:
-                arg = self.code.co_names[arg]
-            args.append(arg)
-
-        if name.startswith('INPLACE_'): # Why is this separate?  Just an optimization in the Py core?
-            name = 'BINARY_' + name[len('INPLACE_'):]
-        if name in self.opcdmap:
-            #print(args)
-            npc = self.opcdmap[name](*args)
-            if npc != None:
-                pc = npc
-        elif name in self.binaryOpers:
-            args.append(self.binaryOpers[name])
-            self.binaryOp(*args[1:])
-        else:
-            raise Exception('Unknown opcode `%s\'' % name)
-
-        return pc
-
     def opcode(func, opcdmap={}):
         opcdmap[func.__name__] = func
         return func
@@ -184,6 +69,7 @@ function%s(%s) {
     @opcode
     def DUP_TOP(self, _block, stack, _scope):
         stack.append(stack[-1])
+
     @opcode
     def DUP_TOPX(self, _block, stack, _scope, count):
         stack += stack[-count:]
@@ -362,6 +248,7 @@ function%s(%s) {
     @opcode
     def COMPARE_OP(self, _block, stack, _scope, opname):
         a, b = stack.pop(), stack.pop()
+        import opcode
         stack.append('%s %s %s' % (b, opcode.cmp_op[opname], a))
 
     @opcode
@@ -538,75 +425,3 @@ function%s(%s) {
 
     def __str__(self):
         return self.js
-
-def _ord(x):
-    if isinstance(x, str):
-        return ord(x)
-    else:
-        return x
-
-
-def pyvascript(context):
-    context._push_buffer()
-    context.caller_stack.nextcaller.body()
-    code = context._pop_buffer().getvalue()
-    lines = code.split(u'\n')
-
-    imps = []
-    top = []
-    blocks = []
-    i = 0
-    while i < len(lines):
-        start = i
-        if lines[i].startswith(u'import') or lines[i].startswith(u'from'):
-            imps.append(lines[i])
-        elif lines[i].startswith(u'class') or lines[i].startswith(u'def'):
-            i += 1
-            while i < len(lines) and (lines[i] == u'' or lines[i][0] in u' \t'):
-                i += 1
-            i -= 1
-            blocks.append([line for line in lines[start:i] if line.strip()])
-        elif lines[i].strip():
-            top.append(lines[i])
-        i += 1
-
-    code = [imp for imp in imps]
-    names = []
-    if len(top):
-        names.append('__top__')
-        code += [u'@JavaScript', 'def __top__():'] + ['\t'+line for line in top]
-
-    for block in blocks:
-        first = block[0].strip()
-
-        if first.startswith(u'class'):
-            block[0] = block[0].rstrip()[:-1]
-            if block[0][-1] == u')':
-                block[0] = block[0][:-1] + u', JavaScript):'
-            else:
-                block[0] += u'(JavaScript):'
-        elif first.startswith(u'def'):
-            block = [u'@JavaScript'] + block
-        else:
-            first = block[1].strip()
-
-        name = first.split(u' ', 1)[1].split(u'(', 1)[0].split(u':', 1)[0]
-        if first.startswith(u'class'):
-            block.append(u'%s = %s()' % (name, name))
-        names.append(name)
-        code += block
-
-    code = u'\n'.join(code)
-    #file('foo.py', 'w').write(code)
-
-    code = compiler.compile(code, '<pyvascript>', 'exec')
-    globs = dict(JavaScript=JavaScript)
-    eval(code, globs)
-
-    for imp in imps:
-        module = imp.split(u' ', 2)[1]
-        module = __import__(module, globals(), locals(), ['__js_deps__'], -1)
-        for jsDep in getattr(module, '__js_deps__', ()):
-            context.write(u'<script src="%s" language="JavaScript"></script>\n' % jsDep)
-
-    context.write(u'<script language="JavaScript">\n%s</script>' % '\n'.join(unicode(globs[name]) for name in names))
