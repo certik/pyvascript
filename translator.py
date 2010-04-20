@@ -32,7 +32,7 @@ class Translator(object):
         except Exception:
             print
             dis.dis(func)
-            self.js = ''
+            self._js = ''
             raise
 
         if func.func_defaults:
@@ -63,9 +63,9 @@ class Translator(object):
             fname = func.__name__
 
         if fname == '__top__':
-            self.js = '\n'.join(line for line in outer if line != 'return;')
+            self._js = '\n'.join(line for line in outer if line != 'return;')
         else:
-            self.js = \
+            self._js = \
 '''
 function%s(%s) {
 %s%s
@@ -125,7 +125,7 @@ function%s(%s) {
         return pc
 
     def __str__(self):
-        return self.js
+        return self._js
 
 def _ord(x):
     if isinstance(x, str):

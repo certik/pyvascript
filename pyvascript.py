@@ -422,6 +422,3 @@ class JavaScript(Translator):
     @opcode
     def STOP_CODE(self, _block, _stack, _scope):
         pass
-
-    def __str__(self):
-        return self.js
