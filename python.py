@@ -120,14 +120,6 @@ def%s(%s):
             )
 
     @opcode
-    def DUP_TOP(self, _block, stack, _scope):
-        stack.append(stack[-1])
-
-    @opcode
-    def DUP_TOPX(self, _block, stack, _scope, count):
-        stack += stack[-count:]
-
-    @opcode
     def POP_TOP(self, block, stack, _scope):
         top = stack.pop()
 
@@ -140,74 +132,16 @@ def%s(%s):
             block.append('%s' % top)
 
     @opcode
-    def POP_BLOCK(self, block, stack, _scope):
-        return
-        top = stack.pop()
-
-        if isinstance(top, tuple) and len(top) == 2:
-            use, top = top
-        else:
-            use = True
-
-        if use:
-            block.append('%s' % top)
-
-    @opcode
-    def ROT_TWO(self, _block, stack, _scope):
-        a, b = stack.pop(), stack.pop()
-        stack.append(a)
-        stack.append(b)
-    @opcode
-    def ROT_THREE(self, _block, stack, _scope):
-        a, b, c = stack.pop(), stack.pop(), stack.pop()
-        stack.append(a)
-        stack.append(c)
-        stack.append(b)
-
-    @opcode
-    def LOAD_ATTR(self, _block, stack, _scope, name):
-        if name == 'new':
-            stack.append('new %s' % stack.pop())
-        else:
-            stack.append('%s.%s' % (stack.pop(), name))
-    @opcode
-    def STORE_ATTR(self, block, stack, _scope, name):
-        block.append('%s.%s = %s' % (stack.pop(), name, stack.pop()))
-
-    @opcode
     def LOAD_CONST(self, _block, stack, _scope, const):
         if const == None:
             stack.append('null')
-        elif const is False:
-            stack.append('false')
-        elif const is True:
-            stack.append('true')
         else:
             stack.append(repr(const))
 
     @opcode
-    def LOAD_GLOBAL(self, _block, stack, _scope, name):
-        if name == 'True':
-            stack.append('true')
-        elif name == 'False':
-            stack.append('false')
-        elif name == 'None':
-            stack.append('null')
-        else:
-            stack.append(name)
-    @opcode
-    def STORE_GLOBAL(self, block, stack, scope, var):
-        if stack[-1] == 'for':
-            block.append(var)
-            stack.pop()
-        else:
-            block.append('%s = %s' % (var, stack.pop()))
-
-    @opcode
     def LOAD_FAST(self, _block, stack, _scope, var):
-        if var == 'self':
-            var = 'this'
         stack.append(var)
+
     @opcode
     def STORE_FAST(self, block, stack, scope, var):
         if var in scope:
@@ -222,30 +156,6 @@ def%s(%s):
         else:
             block.append('%s%s = %s' % (decl, var, stack.pop()))
 
-    @opcode
-    def STORE_SUBSCR(self, block, stack, _scope):
-        index, base, value = stack.pop(), stack.pop(), stack.pop()
-        if isinstance(base, list) or isinstance(base, dict):
-            base[index] = value
-        else:
-            block.append('(%s)[%s] = %s' % (base, index, value))
-
-    @opcode
-    def UNARY_NEGATIVE(self, _block, stack, _scope):
-        stack.append('-(%s)' % stack.pop())
-    @opcode
-    def UNARY_NOT(self, _block, stack, _scope):
-        stack.append('!(%s)' % stack.pop())
-
-    @opcode
-    def BINARY_SUBSCR(self, _block, stack, _scope):
-        a, b = stack.pop(), stack.pop()
-        stack.append('(%s)[%s]' % (b, a))
-
-    @opcode
-    def BINARY_POWER(self, _block, stack, _scope):
-        a, b = stack.pop(), stack.pop()
-        stack.append('Math.pow(%s, %s)' % (b, a))
     def binaryOp(self, _block, stack, _scope, oper):
         a, b = stack.pop(), stack.pop()
         stack.append('(%s) %s (%s)' % (b, oper, a))
@@ -263,34 +173,6 @@ def%s(%s):
     )
 
     @opcode
-    def BUILD_MAP(self, _block, stack, _scope, _arg):
-        stack.append(JsDict())
-
-    @opcode
-    def STORE_MAP(self, _block, stack, _scope):
-        key = stack.pop()
-        value = stack.pop()
-        d = stack.pop()
-        d[key] = value
-        stack.append(d)
-
-    @opcode
-    def BUILD_TUPLE(self, _block, stack, _scope, count):
-        stack.append(JsList([stack.pop() for i in range(count)][::-1]))
-
-    @opcode
-    def BUILD_LIST(self, _block, stack, _scope, count):
-        stack.append(JsList([stack.pop() for i in range(count)][::-1]))
-
-    @opcode
-    def CALL_FUNCTION(self, _block, stack, _scope, count):
-        if count == 0:
-            stack.append(PyFunc(stack.pop()))
-        else:
-            stack.append(PyFunc(stack[-count-1], [str(elem) for elem in stack[-count:]]))
-            del stack[-count-2:-1]
-
-    @opcode
     def RETURN_VALUE(self, block, stack, _scope):
         val = stack.pop()
         if val != 'null':
@@ -298,104 +180,8 @@ def%s(%s):
         else:
             block.append('return')
 
-    @opcode
-    def COMPARE_OP(self, _block, stack, _scope, opname):
-        a, b = stack.pop(), stack.pop()
-        import opcode
-        stack.append('%s %s %s' % (b, opcode.cmp_op[opname], a))
-
-    @opcode
-    def UNPACK_SEQUENCE(self, _block, stack, _scope, count):
-        s = stack.pop()
-        for i in reversed(range(count)):
-            stack.append("%s[%d]" % (s, i))
-
-    @opcode
-    def RAISE_VARARGS(self, block, stack, _scope, argc):
-        assert argc == 1
-        block.append(str(stack.pop()))
-
-    @opcode
-    def GET_ITER(self, _block, stack, _scope):
-        pass
-    @opcode
-    def FOR_ITER(self, block, stack, _scope, pc, delta):
-        block.append(stack.pop())
-        stack[0] = 'for'
-        stack.append('for')
-
     def addSemicolon(self, line):
         return ''
-
-    @opcode
-    def SETUP_LOOP(self, block, stack, scope, pc, delta):
-        nblock = []
-        nstack = ['while']
-        nscope = [var for var in scope]
-        tpc = pc
-        while tpc != -1 and tpc < len(self.co_code):
-            tpc = self.execute(tpc, block=nblock, stack=nstack, scope=nscope)
-
-        if nstack[0] == 'while':
-            try:
-                while_, cond = nblock[0]
-                assert while_ == 'while'
-
-                block.append('while(%s)%s' % (cond, len(nblock) != 2 and ' {' or ''))
-                for line in nblock[1:]:
-                    block.append('\t%s' % line)
-                if len(nblock) != 2:
-                    block.append('}')
-            except Exception:
-                raise Exception('Could not build while block %i-%i, nblock follows: %r' % (pc, pc+delta, nblock))
-        elif nstack[0] == 'for' and isinstance(nblock[0], PyFunc) and nblock[0].name == 'range':
-            args = nblock[0].args
-            var = nblock[1]
-            if len(args) == 1:
-                begin = '0'
-                end = args[0]
-                step = '1'
-            elif len(args) == 2:
-                begin, end = args
-                step = '1'
-            elif len(args) == 3:
-                begin, end, step = args
-
-            setup = ['%s = %s' % (var, begin)]
-
-            if not end.isdigit():
-                setup.append('__end%i = %s' % (self.varcount, end))
-                end = '__end%i' % self.varcount
-                self.varcount += 1
-
-            if not step.isdigit():
-                setup.append('__step%i = %s' % (self.varcount, step))
-                step = '__step%i' % self.varcount
-                self.varcount += 1
-
-            expr = '%s; %s < %s; %s += %s' % (', '.join(setup), var, end, var, step)
-            block.append('for(%s)%s' % (expr, len(nblock) != 3 and ' {' or ''))
-            for line in nblock[2:]:
-                block.append('\t%s%s' % (line, self.addSemicolon(line)))
-            if len(nblock) != 3:
-                block.append('}')
-        elif nstack[0] == 'for':
-            block.append('for(var %s in %s)%s' % (nblock[1], nblock[0], len(nblock) != 3 and ' {' or ''))
-            for line in nblock[2:]:
-                block.append('\t%s%s' % (line, self.addSemicolon(line)))
-            if len(nblock) != 3:
-                block.append('}')
-
-        return pc + delta
-    @opcode
-    def BREAK_LOOP(self, block, _stack, _scope):
-        block.append('break;')
-
-    @opcode
-    def POP_JUMP_IF_FALSE(self, block, stack, scope, pc, target):
-        r = self.JUMP_IF_FALSE(block, stack, scope, pc, target-pc)
-        stack.pop()
-        return r
 
     @opcode
     def JUMP_IF_FALSE(self, block, stack, scope, pc, delta):
@@ -446,22 +232,11 @@ def%s(%s):
             return pc + delta
 
     @opcode
-    def JUMP_IF_TRUE(self, block, stack, scope, pc, delta):
-        return self.JUMP_IF_FALSE(block, stack[:-1] + ['!(%s)' % stack[-1]], scope, pc, delta)
-
-    @opcode
     def JUMP_FORWARD(self, block, _stack, _scope, pc, delta):
         if isinstance(block[0], tuple) and block[0][0] == 'if':
             del block[0]
             block.append(('else', pc + delta))
         return pc + delta
-
-    @opcode
-    def JUMP_ABSOLUTE(self, block, _stack, _scope, pc):
-        if len(block) > 0 and isinstance(block[0], tuple) and block[0][0] == 'if':
-            del block[0]
-            block.append(('else', pc))
-        return pc
 
     @opcode
     def STOP_CODE(self, _block, _stack, _scope):
