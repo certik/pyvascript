@@ -219,6 +219,14 @@ def%s(%s):
         return pc + delta
 
     @opcode
+    def JUMP_ABSOLUTE(self, block, _stack, _scope, pc):
+        if len(block) > 0 and isinstance(block[0], tuple) and \
+                block[0][0] == 'if':
+            del block[0]
+            block.append(('else', pc))
+        return pc
+
+    @opcode
     def STOP_CODE(self, _block, _stack, _scope):
         pass
 

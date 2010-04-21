@@ -64,6 +64,18 @@ def ifs2(x):
         a *= 4
     return a
 
+def ifs3(x):
+    a = 1
+    if x > 0:
+        if x > 10:
+            a = 3
+        else:
+            a = 4
+    else:
+        a = 5
+    return a
+
+
 def test(func, arg_array):
     func_source = str(Python(func))
     #print func_source
@@ -88,6 +100,7 @@ def test_basic():
 def test_ifs():
     test(ifs1, [True, False])
     test(ifs2, [-1, 1])
+    #test(ifs3, [-1, 1, 20])
 
 test_basic()
 test_ifs()
