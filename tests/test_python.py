@@ -44,8 +44,20 @@ def f5(x):
         a = a - 1
     return a
 
+def ifs1(x):
+    a = 1
+    if x:
+        a = a + 1
+        a *= 2
+    else:
+        a = a - 1
+        a *= 4
+    return a
+
 def test(func, arg_array):
-    code = compile(str(Python(func)), "", "exec")
+    func_source = str(Python(func))
+    #print func_source
+    code = compile(func_source, "", "exec")
     namespace = {}
     eval(code, {}, namespace)
     func_py = namespace[func.__name__]
@@ -63,4 +75,8 @@ def test_basic():
     test(f4, [True, False])
     test(f5, [True, False])
 
+def test_ifs():
+    test(ifs1, [True, False])
+
 test_basic()
+test_ifs()

@@ -5,7 +5,7 @@ def test1(x):
 
 
 def test2(x):
-	if(x):
+	if x:
 		return 5
 	return 6
 	return
@@ -13,9 +13,9 @@ def test2(x):
 
 def test3(x):
 	a = 0
-	if(x):
+	if x:
 		a = 5
-	else: 
+	else:
 		a = 6
 	return a
 

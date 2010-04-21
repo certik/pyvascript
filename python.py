@@ -184,7 +184,7 @@ def%s(%s):
             while tpc != -1 and tpc < pc + delta and tpc < len(self.co_code):
                 tpc = self.execute(tpc, block=nblock, stack=nstack, scope=nscope)
 
-            block.append('if(%s)%s:' % (cond, len(nblock) != 2 and ' {' or ''))
+            block.append('if %s:' % cond)
             hasElse = False
             for line in nblock:
                 if isinstance(line, tuple):
@@ -196,8 +196,6 @@ def%s(%s):
                     else:
                         continue
                 block.append('\t%s%s' % (line, self.addSemicolon(line)))
-            if len(nblock) != 2:
-                block.append('}')
 
             if hasElse:
                 nblock = []
@@ -207,11 +205,9 @@ def%s(%s):
                 while tpc != -1 and tpc < pc + delta and tpc < len(self.co_code):
                     tpc = self.execute(tpc, block=nblock, stack=nstack, scope=nscope)
                 if len(nblock) != 0:
-                    block.append('else: %s' % (len(nblock) != 1 and ' {' or ''))
+                    block.append('else:')
                     for line in nblock:
                         block.append('\t%s%s' % (line, self.addSemicolon(line)))
-                    if len(nblock) != 1:
-                        block.append('}')
 
             return pc + delta
 
