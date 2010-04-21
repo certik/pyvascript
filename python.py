@@ -144,17 +144,14 @@ def%s(%s):
 
     @opcode
     def STORE_FAST(self, block, stack, scope, var):
-        if var in scope:
-            decl = ''
-        else:
-            decl = 'var '
+        if not (var in scope):
             scope.append(var)
 
         if stack[-1] == 'for':
             block.append(var)
             stack.pop()
         else:
-            block.append('%s%s = %s' % (decl, var, stack.pop()))
+            block.append('%s = %s' % (var, stack.pop()))
 
     def binaryOp(self, _block, stack, _scope, oper):
         a, b = stack.pop(), stack.pop()

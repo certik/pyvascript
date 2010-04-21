@@ -12,7 +12,7 @@ def test2(x):
 
 
 def test3(x):
-	var a = 0
+	a = 0
 	if(x):
 		a = 5
 	else: 
