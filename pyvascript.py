@@ -27,8 +27,7 @@ class JavaScript(Translator):
     translation.
     """
 
-    @classmethod
-    def handle_class(cls0, cls, *args, **kwargs):
+    def handle_class(self, cls, *args, **kwargs):
         super_class = object
         super_dir = dir(super_class)
         subdir = [elem for elem in dir(cls) if elem not in super_dir]

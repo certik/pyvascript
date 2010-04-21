@@ -32,8 +32,7 @@ class Translator(object):
 
     def __init__(self, func, inClass=False, fname=None, anonymous=False):
         if isinstance(func, type):
-            from pyvascript import JavaScript
-            self._js = JavaScript.handle_class(func, inClass=inClass,
+            self._js = self.handle_class(func, inClass=inClass,
                     fname=fname, anonymous=anonymous)
             return
 
