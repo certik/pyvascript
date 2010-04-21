@@ -61,6 +61,65 @@ class JavaScript(Translator):
 
         return code
 
+    def handle_function(self, func, inClass=False, fname=None, anonymous=False):
+        self.code = func.func_code
+        self.co_code = self.code.co_code
+
+        self.hit = []
+        pc = 0
+        outer = []
+        stack = []
+        scope = [name for name in self.code.co_varnames[:self.code.co_argcount]]
+        try:
+            while pc != -1 and pc < len(self.co_code):
+                pc = self.execute(pc, block=outer, stack=stack, scope=scope)
+        except Exception:
+            print
+            dis.dis(func)
+            raise
+
+        if func.func_defaults:
+            defaults = ''
+
+            off = self.code.co_argcount - len(func.func_defaults)
+            for i in range(len(func.func_defaults)):
+                var = self.code.co_varnames[off+i]
+                val = func.func_defaults[i]
+                if val == None:
+                    val = 'null'
+                else:
+                    if val is True:
+                        val = 'true'
+                    elif val is False:
+                        val = 'false'
+                    elif val is None:
+                        val = 'None'
+                    else:
+                        val = repr(val)
+                defaults += '\t%s = (typeof(%s) != \'undefined\' && %s != null) ? %s : %s;\n' % (
+                        var, var, var, var, val
+                    )
+        else:
+            defaults = ''
+
+        if fname == None:
+            fname = func.__name__
+
+        if fname == '__top__':
+            return '\n'.join(line for line in outer if line != 'return;')
+        else:
+            return \
+'''
+function%s(%s) {
+%s%s
+}
+''' % (
+                (not anonymous) and ' %s' % fname or '',
+                ', '.join(self.code.co_varnames[inClass and 1 or 0:self.code.co_argcount]),
+                defaults,
+                '\n'.join('\t%s' % line for line in outer)
+            )
+
     @opcode
     def DUP_TOP(self, _block, stack, _scope):
         stack.append(stack[-1])
