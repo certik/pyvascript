@@ -9,7 +9,7 @@ class JsList(list):
     def __repr__(self):
         return '[%s]' % ', '.join(map(str, self))
 
-class JsFunc(object):
+class PyFunc(object):
     def __init__(self, name, args=()):
         self.name = name
         self.args = tuple(args)
@@ -227,9 +227,9 @@ class Python(Translator):
     @opcode
     def CALL_FUNCTION(self, _block, stack, _scope, count):
         if count == 0:
-            stack.append(JsFunc(stack.pop()))
+            stack.append(PyFunc(stack.pop()))
         else:
-            stack.append(JsFunc(stack[-count-1], [str(elem) for elem in stack[-count:]]))
+            stack.append(PyFunc(stack[-count-1], [str(elem) for elem in stack[-count:]]))
             del stack[-count-2:-1]
 
     @opcode
@@ -299,7 +299,7 @@ class Python(Translator):
                     block.append('}')
             except Exception:
                 raise Exception('Could not build while block %i-%i, nblock follows: %r' % (pc, pc+delta, nblock))
-        elif nstack[0] == 'for' and isinstance(nblock[0], JsFunc) and nblock[0].name == 'range':
+        elif nstack[0] == 'for' and isinstance(nblock[0], PyFunc) and nblock[0].name == 'range':
             args = nblock[0].args
             var = nblock[1]
             if len(args) == 1:
