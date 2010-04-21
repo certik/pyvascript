@@ -37,7 +37,7 @@ class Python(Translator):
         if cls.__init__ is not super_class.__init__:
             code = str(Python(cls.__init__, inClass=True, fname=cls.__name__)).rstrip()[:-1].rstrip() + '\n'
         else:
-            code = 'function %s() {\n' % cls.__name__
+            code = 'def %s():\n' % cls.__name__
 
         for key in subdir:
             val = getattr(cls, key)
@@ -110,9 +110,8 @@ class Python(Translator):
         else:
             return \
 '''
-function%s(%s) {
+def%s(%s):
 %s%s
-}
 ''' % (
                 (not anonymous) and ' %s' % fname or '',
                 ', '.join(self.code.co_varnames[inClass and 1 or 0:self.code.co_argcount]),
