@@ -221,3 +221,9 @@ def%s(%s):
     @opcode
     def STOP_CODE(self, _block, _stack, _scope):
         pass
+
+    @opcode
+    def COMPARE_OP(self, _block, stack, _scope, opname):
+        a, b = stack.pop(), stack.pop()
+        import opcode
+        stack.append('%s %s %s' % (b, opcode.cmp_op[opname], a))
