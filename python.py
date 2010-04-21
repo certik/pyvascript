@@ -169,47 +169,41 @@ def%s(%s):
 
     @opcode
     def JUMP_IF_FALSE(self, block, stack, scope, pc, delta):
-        if len(stack) >= 2 and stack[-2] == 'while':
-            # this doesn't always work, sometimes the "else" part should be
-            # executed
-            block.append(('while', stack[-1]))
-            stack.append((False, stack.pop()))
-        else:
-            cond = stack.pop()
-            stack.append((False, cond))
-            nblock = [('if', pc + delta)]
+        cond = stack.pop()
+        stack.append((False, cond))
+        nblock = [('if', pc + delta)]
+        nstack = [elem for elem in stack]
+        nscope = [var for var in scope]
+        tpc = pc
+        while tpc != -1 and tpc < pc + delta and tpc < len(self.co_code):
+            tpc = self.execute(tpc, block=nblock, stack=nstack, scope=nscope)
+
+        block.append('if %s:' % cond)
+        hasElse = False
+        for line in nblock:
+            if isinstance(line, tuple):
+                if line[0] == 'else':
+                    hasElse = True
+                    pc += delta
+                    delta = line[1] - pc
+                    break
+                else:
+                    continue
+            block.append('\t%s%s' % (line, self.addSemicolon(line)))
+
+        if hasElse:
+            nblock = []
             nstack = [elem for elem in stack]
             nscope = [var for var in scope]
             tpc = pc
             while tpc != -1 and tpc < pc + delta and tpc < len(self.co_code):
                 tpc = self.execute(tpc, block=nblock, stack=nstack, scope=nscope)
+            if len(nblock) != 0:
+                block.append('else:')
+                for line in nblock:
+                    block.append('\t%s%s' % (line, self.addSemicolon(line)))
 
-            block.append('if %s:' % cond)
-            hasElse = False
-            for line in nblock:
-                if isinstance(line, tuple):
-                    if line[0] == 'else':
-                        hasElse = True
-                        pc += delta
-                        delta = line[1] - pc
-                        break
-                    else:
-                        continue
-                block.append('\t%s%s' % (line, self.addSemicolon(line)))
-
-            if hasElse:
-                nblock = []
-                nstack = [elem for elem in stack]
-                nscope = [var for var in scope]
-                tpc = pc
-                while tpc != -1 and tpc < pc + delta and tpc < len(self.co_code):
-                    tpc = self.execute(tpc, block=nblock, stack=nstack, scope=nscope)
-                if len(nblock) != 0:
-                    block.append('else:')
-                    for line in nblock:
-                        block.append('\t%s%s' % (line, self.addSemicolon(line)))
-
-            return pc + delta
+        return pc + delta
 
     @opcode
     def JUMP_FORWARD(self, block, _stack, _scope, pc, delta):
