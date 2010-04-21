@@ -5,7 +5,7 @@ import sys
 from glob import glob
 from difflib import unified_diff
 
-def test(in_file):
+def test1(in_file):
     w = Writer()
     w.write("Testint the file: %s" % in_file)
     out_file = "/tmp/_pyvascript_test.out"
@@ -19,10 +19,23 @@ def test(in_file):
         w.write("[FAIL]", align="right", color="Red")
     w.write("\n")
 
+def test2(in_file):
+    w = Writer()
+    w.write("Testint the file: %s" % in_file)
+    r = os.system("python %s" % (in_file))
+    if r == 0:
+        w.write("[OK]", align="right", color="Green")
+    else:
+        w.write("[FAIL]", align="right", color="Red")
+    w.write("\n")
+
 def main():
     files = glob("examples/*.py")
     for file in files:
-        test(file)
+        test1(file)
+    files = glob("tests/test_*.py")
+    for file in files:
+        test2(file)
 
 class Writer(object):
 
