@@ -81,7 +81,7 @@ class Translator(object):
             args.append(self.binaryOpers[name])
             self.binaryOp(*args[1:])
         else:
-            raise Exception('Unknown opcode `%s\'' % name)
+            raise Exception('Unsupported opcode `%s\'' % name)
 
         return pc
 
