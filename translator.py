@@ -85,6 +85,19 @@ class Translator(object):
 
         return pc
 
+    binaryOpers = dict(
+        BINARY_ADD='+',
+        BINARY_SUBTRACT='-',
+        BINARY_MULTIPLY='*',
+        BINARY_DIVIDE='/',
+        BINARY_MODULO='%',
+        BINARY_LSHIFT='<<',
+        BINARY_RSHIFT='>>',
+        BINARY_AND='&',
+        BINARY_OR='|',
+        BINARY_XOR='^'
+    )
+
     def __str__(self):
         return self._js
 

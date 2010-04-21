@@ -159,19 +159,6 @@ def%s(%s):
     def binaryOp(self, _block, stack, _scope, oper):
         a, b = stack.pop(), stack.pop()
         stack.append('(%s) %s (%s)' % (b, oper, a))
-    binaryOpers = dict(
-        BINARY_ADD='+',
-        BINARY_SUBTRACT='-',
-        BINARY_MULTIPLY='*',
-        BINARY_DIVIDE='/',
-        BINARY_MODULO='%',
-        BINARY_LSHIFT='<<',
-        BINARY_RSHIFT='>>',
-        BINARY_AND='&',
-        BINARY_OR='|',
-        BINARY_XOR='^'
-    )
-
     @opcode
     def RETURN_VALUE(self, block, stack, _scope):
         val = stack.pop()
