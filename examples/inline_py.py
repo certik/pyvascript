@@ -12,5 +12,15 @@ def test2(x):
     else:
         return 6
 
+@Python
+def test3(x):
+    a = 0
+    if x:
+        a = 5
+    else:
+        a = 6
+    return a
+
 print test1
 print test2
+print test3
