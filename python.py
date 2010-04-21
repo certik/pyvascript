@@ -137,7 +137,7 @@ def%s(%s):
             use = True
 
         if use:
-            block.append('%s;' % top)
+            block.append('%s' % top)
 
     @opcode
     def POP_BLOCK(self, block, stack, _scope):
@@ -150,7 +150,7 @@ def%s(%s):
             use = True
 
         if use:
-            block.append('%s;' % top)
+            block.append('%s' % top)
 
     @opcode
     def ROT_TWO(self, _block, stack, _scope):
@@ -172,7 +172,7 @@ def%s(%s):
             stack.append('%s.%s' % (stack.pop(), name))
     @opcode
     def STORE_ATTR(self, block, stack, _scope, name):
-        block.append('%s.%s = %s;' % (stack.pop(), name, stack.pop()))
+        block.append('%s.%s = %s' % (stack.pop(), name, stack.pop()))
 
     @opcode
     def LOAD_CONST(self, _block, stack, _scope, const):
@@ -201,7 +201,7 @@ def%s(%s):
             block.append(var)
             stack.pop()
         else:
-            block.append('%s = %s;' % (var, stack.pop()))
+            block.append('%s = %s' % (var, stack.pop()))
 
     @opcode
     def LOAD_FAST(self, _block, stack, _scope, var):
@@ -220,7 +220,7 @@ def%s(%s):
             block.append(var)
             stack.pop()
         else:
-            block.append('%s%s = %s;' % (decl, var, stack.pop()))
+            block.append('%s%s = %s' % (decl, var, stack.pop()))
 
     @opcode
     def STORE_SUBSCR(self, block, stack, _scope):
@@ -294,9 +294,9 @@ def%s(%s):
     def RETURN_VALUE(self, block, stack, _scope):
         val = stack.pop()
         if val != 'null':
-            block.append('return %s;' % val)
+            block.append('return %s' % val)
         else:
-            block.append('return;')
+            block.append('return')
 
     @opcode
     def COMPARE_OP(self, _block, stack, _scope, opname):
@@ -325,17 +325,8 @@ def%s(%s):
         stack.append('for')
 
     def addSemicolon(self, line):
-        if (
-            line.lstrip().startswith('if') or
-            line.lstrip().startswith('else') or
-            line.lstrip().startswith('while') or
-            line.lstrip().startswith('for') or
-            line.rstrip().endswith(';') or
-            line.rstrip().endswith('}')
-        ):
-            return ''
+        return ''
 
-        return ';'
     @opcode
     def SETUP_LOOP(self, block, stack, scope, pc, delta):
         nblock = []
