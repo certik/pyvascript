@@ -4,7 +4,8 @@ from pyvascript import JavaScript
 def StartGoL():
     window.gol = GoL.new()
 
-class GoL(JavaScript):
+@JavaScript
+class GoL(object):
     def __init__(self):
         self.width = 75
         self.height = 75
@@ -64,7 +65,6 @@ class GoL(JavaScript):
                 else:
                     self.canvas.clearRect(x, y, x+10, y+10)
                 i += 1
-GoL = GoL()
 
 def main():
     print """<html>

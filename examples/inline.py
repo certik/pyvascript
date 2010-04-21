@@ -6,7 +6,8 @@ def test():
     alert('Test!')
     TestClass.new() # Notice the 'new'
 
-class TestClass(JavaScript):
+@JavaScript
+class TestClass(object):
     def __init__(self):
         alert('TestClass created')
         self.reset()
@@ -17,8 +18,8 @@ class TestClass(JavaScript):
     def inc(self):
         alert(self.value)
         self.value += 1
-TestClass = TestClass()
 
+@JavaScript
 class AjaxTest(AjaxHelper):
     def __init__(self):
         self.post('/some/url')
@@ -28,7 +29,6 @@ class AjaxTest(AjaxHelper):
 
     def failure(self, o):
         alert('Ajax failure...')
-AjaxTest = AjaxTest()
 
 print '<script language="Javascript">'
 print test

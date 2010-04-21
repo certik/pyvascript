@@ -1,6 +1,7 @@
 from pyvascript import JavaScript
 
-class TestClass(JavaScript):
+@JavaScript
+class TestClass(object):
     count = 0
     def __init__(self):
         pass
@@ -8,7 +9,6 @@ class TestClass(JavaScript):
         self.count += 1
     def test(self):
         alert(self.count)
-TestClass = TestClass()
 
 @JavaScript
 def onCountClick(event):
@@ -18,7 +18,7 @@ def onCountClick(event):
 @JavaScript
 def helloWorld():
     window.testObj = TestClass.new()
-    
+
     pushButton = YAHOO.widget.Button.new(
         {
             'label' : 'Hello, World!',
@@ -38,7 +38,7 @@ def helloWorld():
             }
         }
     )
-    
+
     i = 1
     while i <= 3:
         YAHOO.widget.Button.new(
@@ -53,7 +53,7 @@ def helloWorld():
             }
         )
         i += 1
-    
+
     YAHOO.widget.Button.new(
         {
             'label' : 'Count',

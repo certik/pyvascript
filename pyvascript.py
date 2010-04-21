@@ -28,14 +28,14 @@ class JavaScript(Translator):
     """
 
     @classmethod
-    def __new__(cls, *args, **kwargs):
-        if cls == JavaScript:
-            return object.__new__(cls)
+    def handle_class(cls0, cls, *args, **kwargs):
+        super_class = object
+        super_dir = dir(super_class)
+        subdir = [elem for elem in dir(cls) if elem not in super_dir]
+        subdir = [elem for elem in subdir if elem not in [
+            '__dict__', '__module__', '__weakref__']]
 
-        superdir = dir(JavaScript)
-        subdir = [elem for elem in dir(cls) if elem not in superdir]
-
-        if cls.__init__ is not JavaScript.__init__:
+        if cls.__init__ is not super_class.__init__:
             code = str(JavaScript(cls.__init__, inClass=True, fname=cls.__name__)).rstrip()[:-1].rstrip() + '\n'
         else:
             code = 'function %s() {\n' % cls.__name__

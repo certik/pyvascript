@@ -1,5 +1,3 @@
-from pyvascript import JavaScript
-
 __js_deps__ = (
         'http://yui.yahooapis.com/2.7.0/build/yahoo/yahoo-min.js',
         'http://yui.yahooapis.com/2.7.0/build/event/event-min.js',
@@ -7,7 +5,7 @@ __js_deps__ = (
         'http://yui.yahooapis.com/2.7.0/build/json/json-min.js'
     )
 
-class AjaxHelper(JavaScript):
+class AjaxHelper(object):
     def call(self, method, uri, query=''):
         callback = {
                 'success':self.subSuccess,

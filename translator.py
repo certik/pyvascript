@@ -20,11 +20,23 @@ def opcode(func):
     return func
 
 class Translator(object):
+    """
+    Decorator that translates the decorated function/class into bytecode.
+
+    This is a base class. Subclass it, define opcodes and then decorate any
+    function or class with your subclass.
+    """
     varcount = 0
     # this opcdmap is filled in by the opcode decorator:
     opcdmap = {}
 
     def __init__(self, func, inClass=False, fname=None, anonymous=False):
+        if isinstance(func, type):
+            from pyvascript import JavaScript
+            self._js = JavaScript.handle_class(func, inClass=inClass,
+                    fname=fname, anonymous=anonymous)
+            return
+
         self.code = func.func_code
         self.co_code = self.code.co_code
 
