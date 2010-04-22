@@ -41,21 +41,26 @@ class Visitor(NodeVisitor):
     def __init__(self):
         self._scope = []
 
+    def indent_block(self, l):
+        s = []
+        for statement in l:
+            for item in self.visit(statement):
+                s.append("    %s" % item)
+        return s
+
     def visit_If(self, node):
         s = []
         s.append("if %s:" % self.visit(node.test))
-        for statement in node.body:
-            s.append("    %s" % self.visit(statement))
+        s.extend(self.indent_block(node.body))
         if len(node.orelse) > 0:
             s.append("else:")
-            for statement in node.orelse:
-                s.append("    %s" % self.visit(statement))
+            s.extend(self.indent_block(node.orelse))
         return s
 
     def visit_Assign(self, node):
         assert len(node.targets) == 1
         target = node.targets[0]
-        return "%s = %s" % (self.visit(target), self.visit(node.value))
+        return ["%s = %s" % (self.visit(target), self.visit(node.value))]
 
     def visit_Num(self, node):
         return str(node.n)
@@ -90,8 +95,11 @@ def transform_py(s):
 
 t = """\
 if x > 0:
-    a = 5
-else:
+    if x > 10:
+        a = 3
+    else:
+        a = 4
+    b = 7
     a = 7
 b = 6
 """
