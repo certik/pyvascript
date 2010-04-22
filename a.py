@@ -66,11 +66,28 @@ class PythonVisitor(NodeVisitor):
         target = node.targets[0]
         return ["%s = %s" % (self.visit(target), self.visit(node.value))]
 
+    def visit_AugAssign(self, node):
+        return ["%s %s= %s" % (self.visit(node.target),
+            self.visit(node.op),
+            self.visit(node.value))]
+
     def visit_Num(self, node):
         return str(node.n)
 
     def visit_Gt(self, node):
         return ">"
+
+    def visit_Add(self, node):
+        return "+"
+
+    def visit_Sub(self, node):
+        return "-"
+
+    def visit_Mult(self, node):
+        return "*"
+
+    def visit_Div(self, node):
+        return "/"
 
     def visit_arguments(self, node):
         return [self.visit(arg) for arg in node.args]
@@ -119,7 +136,7 @@ def f(x):
         else:
             a = 4
         b = 7
-        a = 7
+        a -= 7
     b = 6
     return a
 """
