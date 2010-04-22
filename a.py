@@ -1,16 +1,11 @@
-from python import transform_py
+from python import Python2
 
-t = """\
 def f(x):
     if x > 0:
-        if x > 10:
-            a = 3
-        else:
-            a = 4
+        if x > 10: a = 3
+        else: a = 4
         b = 7
         a -= 7
-    b = 6
-    return a
-"""
+    b = 6; return a;
 
-print transform_py(t)
+print Python2(f)

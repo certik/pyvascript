@@ -1,3 +1,4 @@
+import inspect
 from ast import parse, iter_fields, AST, dump
 
 def flatten(l):
@@ -127,6 +128,15 @@ def transform_py(s):
     v = PythonVisitor()
     t = parse(s)
     return "\n".join(v.visit(t))
+
+class Python2(object):
+
+    def __init__(self, obj):
+        obj_source = inspect.getsource(obj)
+        self._python = transform_py(obj_source)
+
+    def __str__(self):
+        return self._python
 
 #################
 # this is the obsolete old version:
