@@ -1,11 +1,8 @@
-from python import Python2
+from python import Python
 
+@Python
 def f(x):
-    if x > 0:
-        if x > 10: a = 3
-        else: a = 4
-        b = 7
-        a -= 7
-    b = 6; return a;
+    if x + 5:
+        return 5
 
-print Python2(f)
+print f

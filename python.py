@@ -103,7 +103,6 @@ class PythonVisitor(NodeVisitor):
         s.extend(self.indent_block(node.body))
         return s
 
-
     def visit_Compare(self, node):
         assert len(node.ops) == 1
         assert len(node.comparators) == 1
@@ -112,6 +111,12 @@ class PythonVisitor(NodeVisitor):
         return "%s %s %s" % (self.visit(node.left),
                 self.visit(op),
                 self.visit(comp)
+                )
+
+    def visit_BinOp(self, node):
+        return "%s %s %s" % (self.visit(node.left),
+                self.visit(node.op),
+                self.visit(node.right)
                 )
 
     def visit_Module(self, node):
@@ -129,7 +134,7 @@ def transform_py(s):
     t = parse(s)
     return "\n".join(v.visit(t))
 
-class Python2(object):
+class Python(object):
 
     def __init__(self, obj):
         obj_source = inspect.getsource(obj)
@@ -161,7 +166,7 @@ class PyFunc(object):
     def __repr__(self):
         return str(self)
 
-class Python(Translator):
+class Python2(Translator):
     """
     Python to Python translator.
 
