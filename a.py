@@ -1,4 +1,4 @@
-from ast import parse, iter_fields, AST
+from ast import parse, iter_fields, AST, dump
 
 def flatten(l):
     s = []
@@ -34,7 +34,7 @@ class NodeVisitor(object):
                 # I don't understand why we get here sometimes, but we need to
                 # skip it:
                 pass
-        return node.__class__.__name__ + str(s)
+        return node.__class__.__name__ + str(tuple(s))
 
 class Visitor(NodeVisitor):
 
@@ -46,6 +46,10 @@ class Visitor(NodeVisitor):
         s.append("if %s:" % self.visit(node.test))
         for statement in node.body:
             s.append("    %s" % self.visit(statement))
+        if len(node.orelse) > 0:
+            s.append("else:")
+            for statement in node.orelse:
+                s.append("    %s" % self.visit(statement))
         return s
 
     def visit_Assign(self, node):
@@ -55,6 +59,19 @@ class Visitor(NodeVisitor):
 
     def visit_Num(self, node):
         return str(node.n)
+
+    def visit_Gt(self, node):
+        return ">"
+
+    def visit_Compare(self, node):
+        assert len(node.ops) == 1
+        assert len(node.comparators) == 1
+        op = node.ops[0]
+        comp = node.comparators[0]
+        return "%s %s %s" % (self.visit(node.left),
+                self.visit(op),
+                self.visit(comp)
+                )
 
     def visit_Module(self, node):
         return flatten([self.visit(s) for s in node.body])
@@ -74,7 +91,9 @@ def transform_py(s):
 t = """\
 if x > 0:
     a = 5
-a = 6
+else:
+    a = 7
+b = 6
 """
 
 print transform_py(t)
