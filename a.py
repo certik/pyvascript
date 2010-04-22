@@ -36,7 +36,7 @@ class NodeVisitor(object):
                 pass
         return node.__class__.__name__ + str(tuple(s))
 
-class Visitor(NodeVisitor):
+class PythonVisitor(NodeVisitor):
 
     def __init__(self):
         self._scope = []
@@ -44,8 +44,12 @@ class Visitor(NodeVisitor):
     def indent_block(self, l):
         s = []
         for statement in l:
-            for item in self.visit(statement):
-                s.append("    %s" % item)
+            stat = self.visit(statement)
+            if isinstance(stat, str):
+                s.append("    %s" % stat)
+            else:
+                for item in stat:
+                    s.append("    %s" % item)
         return s
 
     def visit_If(self, node):
@@ -68,6 +72,20 @@ class Visitor(NodeVisitor):
     def visit_Gt(self, node):
         return ">"
 
+    def visit_arguments(self, node):
+        return [self.visit(arg) for arg in node.args]
+
+    def visit_Return(self, node):
+        return ["return %s" % self.visit(node.value)]
+
+    def visit_FunctionDef(self, node):
+        s = []
+        args = ", ".join(self.visit(node.args))
+        s.append("def %s(%s):" % (node.name, args))
+        s.extend(self.indent_block(node.body))
+        return s
+
+
     def visit_Compare(self, node):
         assert len(node.ops) == 1
         assert len(node.comparators) == 1
@@ -86,22 +104,24 @@ class Visitor(NodeVisitor):
 
     def generic_visit(self, node):
         print "Generic visit:", node.__class__.__name__, node._fields
-        return super(Visitor, self).generic_visit(node)
+        return super(PythonVisitor, self).generic_visit(node)
 
 def transform_py(s):
-    v = Visitor()
+    v = PythonVisitor()
     t = parse(s)
     return "\n".join(v.visit(t))
 
 t = """\
-if x > 0:
-    if x > 10:
-        a = 3
-    else:
-        a = 4
-    b = 7
-    a = 7
-b = 6
+def f(x):
+    if x > 0:
+        if x > 10:
+            a = 3
+        else:
+            a = 4
+        b = 7
+        a = 7
+    b = 6
+    return a
 """
 
 print transform_py(t)
